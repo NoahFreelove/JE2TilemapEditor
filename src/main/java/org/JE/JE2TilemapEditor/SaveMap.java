@@ -13,10 +13,11 @@ public class SaveMap {
 
         StringBuilder sb = new StringBuilder();
         for (TileDefinition td : TileEditor.getPaletteInstance().tileList) {
-            sb.append(td.id).append(":").append(td.filepath.getPath(td.filepath.isClassLoaderPath)).append("\n");
+            sb.append(td.id).append(":").append(td.filepath.getPath(td.filepath.isClassLoaderPath)).append(":").append(td.filepath.isClassLoaderPath).append("\n");
         }
+        sb.append("END-DEF").append("\n");
         for (GameObject o : editor.tiles) {
-            sb.append(o.tag).append(",").append((int)o.getTransform().position().x()).append(",").append((int)o.getTransform().position().y());
+            sb.append(o.tag).append(":").append((int)o.getTransform().position().x()).append(":").append((int)o.getTransform().position().y());
             sb.append("\n");
         }
 

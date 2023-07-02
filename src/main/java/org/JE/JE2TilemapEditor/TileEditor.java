@@ -23,6 +23,31 @@ public class TileEditor extends Scene {
     public final ArrayList<GameObject> tiles = new ArrayList<>();
 
     public TileEditor() {
+
+
+        tp = new TilePalette();
+        addUI(tp);
+        tp.setPos(new Vector2f(0,0));
+        tp.setSize(new Vector2f(150, Main.wp.windowSize.y));
+        Mouse.addMouseReleasedEvent((button, mods) -> {
+            Vector2f windowPos = Mouse.getMousePosition();
+            if(windowPos.x<=tp.getSize().x())
+                return;
+
+            if(button == MouseButton.LEFT){
+                if(tp.currentTile() == null)
+                    return;
+                addTile(Mouse.getMouseWorldPosition2D(), tp.currentTile());
+            }
+            else if(button == MouseButton.RIGHT){
+                removeTile(Mouse.getMouseWorldPosition2D());
+            }
+        });
+    }
+
+    public void reset(){
+        clear();
+        tiles.clear();
         Camera c = new Camera();
         GameObject camera = new GameObject();
         camera.addScript(new ILambdaScript() {
@@ -46,27 +71,6 @@ public class TileEditor extends Scene {
         camera.addScript(c);
         add(camera);
         setCamera(c);
-
-        tp = new TilePalette();
-        addUI(tp);
-        tp.setPos(new Vector2f(0,0));
-        tp.setSize(new Vector2f(128, Main.wp.windowSize.y));
-        Mouse.addMouseReleasedEvent((button, mods) -> {
-            Vector2f windowPos = Mouse.getMousePosition();
-            if(windowPos.x<=tp.getSize().x())
-                return;
-
-            if(button == MouseButton.LEFT){
-                if(tp.currentTile() == null)
-                    return;
-                addTile(Mouse.getMouseWorldPosition2D(), tp.currentTile());
-            }
-            else if(button == MouseButton.RIGHT){
-                removeTile(Mouse.getMouseWorldPosition2D());
-            }
-        });
-
-
     }
 
     public static TileEditor getInstance(){
@@ -117,12 +121,20 @@ public class TileEditor extends Scene {
         if(found)
             return;
 
-        Texture t = Texture.checkExistElseCreate(tp.getSelected() +"A",-1, tileDefinition.filepath);
-        GameObject newTile = GameObject.Sprite(ShaderProgram.spriteShader(), t,t);
-        newTile.setIdentity("tile: " + tp.getSelected(), String.valueOf(tp.getSelected()));
-        newTile.getTransform().setPosition(position);
         //System.out.println("X: " + position.x + " Y: " + position.y);
-        add(newTile);
-        tiles.add(newTile);
+        addActualTile(createTile(tileDefinition,position,tp.getSelected()));
+    }
+
+    public GameObject createTile(TileDefinition td, Vector2f pos, int id){
+        Texture t = Texture.checkExistElseCreate(id +"A",-1, td.filepath);
+        GameObject newTile = GameObject.Sprite(ShaderProgram.spriteShader(), t,t);
+        newTile.setIdentity("tile: " + id, String.valueOf(id));
+        newTile.getTransform().setPosition(pos);
+        return newTile;
+    }
+
+    public void addActualTile(GameObject go){
+        add(go);
+        tiles.add(go);
     }
 }
