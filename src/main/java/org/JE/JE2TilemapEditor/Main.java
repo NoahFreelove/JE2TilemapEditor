@@ -5,7 +5,6 @@ import org.JE.JE2.Manager;
 import org.JE.JE2.Window.WindowPreferences;
 import org.joml.Vector2i;
 
-
 public class Main {
     public static WindowPreferences wp = new WindowPreferences();
 
@@ -19,7 +18,5 @@ public class Main {
         Manager.start(wp);
 
         Manager.setScene(TileEditor.getInstance());
-
-
     }
 }

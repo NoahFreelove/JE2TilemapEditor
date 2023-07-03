@@ -1,6 +1,7 @@
 package org.JE.JE2TilemapEditor;
 
 import org.JE.JE2.IO.Filepath;
+import org.JE.JE2.Objects.GameObject;
 import org.JE.JE2.Resources.DataLoader;
 import org.JE.JE2.Resources.ResourceManager;
 import org.joml.Vector2f;
@@ -19,7 +20,7 @@ public class LoadMap {
 
         while (!data[i].strip().equals("END-DEF")){
             String[] line = data[i].split(":");
-            TileEditor.getPaletteInstance().addTileFromFile(new TileDefinition(Integer.valueOf(line[0]), new Filepath(line[1], Boolean.valueOf(line[2]))));
+            TileEditor.getPaletteInstance().addTileFromFile(new TileDefinition(Integer.parseInt(line[0]), new Filepath(line[1], Boolean.parseBoolean(line[2]))));
             i++;
         }
         i++;
@@ -29,8 +30,14 @@ public class LoadMap {
                 break;
             String[] line = data[i].split(":");
             System.out.println(Arrays.toString(line));
-            TileDefinition td = TileEditor.getPaletteInstance().tileList.get(Integer.valueOf(line[0]));
-            editor.addActualTile(editor.createTile(td, new Vector2f(Float.valueOf(line[1]),Float.valueOf(line[2])),td.id));
+            TileDefinition td = TileEditor.getPaletteInstance().tileList.get(Integer.parseInt(line[0]));
+            float x = Float.parseFloat(line[1]);
+            float y = Float.parseFloat(line[2]);
+            int layer = Integer.parseInt(line[3]);
+            float rot = Float.parseFloat(line[4]);
+            GameObject go = editor.createTile(td, new Vector2f(x,y),td.id,layer);
+            go.setRotation(rot);
+            editor.addActualTile(go);
         }
 
     }

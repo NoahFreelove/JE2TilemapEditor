@@ -5,17 +5,14 @@ import org.JE.JE2.UI.UIElements.Buttons.Button;
 import org.JE.JE2.UI.UIElements.Buttons.ImageButton;
 import org.JE.JE2.UI.UIElements.ElementEventChanged;
 import org.JE.JE2.UI.UIElements.Label;
+import org.JE.JE2.UI.UIElements.Sliders.Slider;
 import org.JE.JE2.UI.UIElements.TextField;
 import org.JE.JE2.UI.UIElements.UIElement;
 import org.JE.JE2.UI.UIObjects.UIWindow;
-import org.JE.JE2.Utility.FileDialogs;
-import org.JE.JE2.Utility.Settings.Setting;
-import org.JE.JE2.Window.Window;
-import org.joml.Vector2f;
+import org.JE.JE2.Utility.WindowDialogs;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class TilePalette extends UIWindow {
 
@@ -41,6 +38,15 @@ public class TilePalette extends UIWindow {
         Button loadButton = new Button("Load From File");
         loadButton.onClickEvent = this::loadFromFile;
         addElement(loadButton);
+
+        Label rot = new Label("Rotation: 0");
+        Slider rotationSlider = new Slider(0,0,360,5);
+        rotationSlider.onChange = value -> {
+            TileEditor.getInstance().rotation = value;
+            rot.setText("Rotation: " + value.intValue());
+        };
+        addElement(rot,rotationSlider);
+
         addTileFromFile(new TileDefinition(tileList.size(),new Filepath("texture1.png",true)));
         addTileFromFile(new TileDefinition(tileList.size(),new Filepath("texture2.png",true)));
         selected = 0;
@@ -58,7 +64,7 @@ public class TilePalette extends UIWindow {
     }
 
     public void addNewTile(){
-        File file = FileDialogs.getFile("Select Image", "", new String[]{"png","jpg","bmp","*"});
+        File file = WindowDialogs.getFile("Select Image", "", new String[]{"png","jpg","bmp","*"});
         if(file.exists())
         {
             String fp = file.getAbsolutePath();
@@ -82,11 +88,14 @@ public class TilePalette extends UIWindow {
     private void saveToFile(){
         if(worldName.equals(""))
             worldName = "world";
-        SaveMap.saveToFile(new Filepath(worldName + ".txt",true), TileEditor.getInstance());
+        var result = SaveMap.saveToFile(new Filepath(worldName + ".txt",true), TileEditor.getInstance(),"");
+        if(!result){
+            WindowDialogs.infoBox("Error","Failed to save map");
+        }
     }
 
     private void loadFromFile(){
-        File file = FileDialogs.getFile("Select Image", "", new String[]{"png","jpg","bmp","*"});
+        File file = WindowDialogs.getFile("Select Image", "", new String[]{"png","jpg","bmp","*"});
         if(file.exists())
         {
             LoadMap.loadToEditor(new Filepath(file.getAbsolutePath(),false), TileEditor.getInstance());

@@ -19,16 +19,19 @@ public class TileEditor extends Scene {
 
     private static TileEditor instance;
     private static TilePalette tp;
+    public float rotation = 0;
     private final float cameraMoveSpeed = 5;
     public final ArrayList<GameObject> tiles = new ArrayList<>();
 
     public TileEditor() {
 
-
         tp = new TilePalette();
         addUI(tp);
         tp.setPos(new Vector2f(0,0));
         tp.setSize(new Vector2f(150, Main.wp.windowSize.y));
+
+        reset();
+
         Mouse.addMouseReleasedEvent((button, mods) -> {
             Vector2f windowPos = Mouse.getMousePosition();
             if(windowPos.x<=tp.getSize().x())
@@ -92,12 +95,19 @@ public class TileEditor extends Scene {
         position.x = (float) Math.round(position.x);
         position.y = (float) Math.round(position.y);
 
+        GameObject highestLayer = null;
         for(GameObject tile : tiles){
             if(tile.getTransform().position().equals(position)){
-                remove(tile);
-                tiles.remove(tile);
-                break;
+                if(highestLayer == null)
+                    highestLayer = tile;
+                else if(tile.getLayer() > highestLayer.getLayer())
+                    highestLayer = tile;
             }
+        }
+        if(highestLayer != null)
+        {
+            remove(highestLayer);
+            tiles.remove(highestLayer);
         }
     }
 
@@ -109,27 +119,32 @@ public class TileEditor extends Scene {
         position.x = (float) Math.round(position.x);
         position.y = (float) Math.round(position.y);
 
+        int foundLayer = 0;
         boolean found = false;
-
         for(GameObject tile : tiles){
             if(tile.getTransform().position().equals(position)){
+                if(tile.getLayer()>=foundLayer)
+                    foundLayer = tile.getLayer();
                 found = true;
-                break;
             }
         }
 
         if(found)
-            return;
+        {
+            foundLayer++;
+        }
 
         //System.out.println("X: " + position.x + " Y: " + position.y);
-        addActualTile(createTile(tileDefinition,position,tp.getSelected()));
+        addActualTile(createTile(tileDefinition,position,tp.getSelected(),foundLayer));
     }
 
-    public GameObject createTile(TileDefinition td, Vector2f pos, int id){
+    public GameObject createTile(TileDefinition td, Vector2f pos, int id, int layer){
         Texture t = Texture.checkExistElseCreate(id +"A",-1, td.filepath);
         GameObject newTile = GameObject.Sprite(ShaderProgram.spriteShader(), t,t);
+        newTile.setLayer(layer);
         newTile.setIdentity("tile: " + id, String.valueOf(id));
         newTile.getTransform().setPosition(pos);
+        newTile.getTransform().rotateZ(rotation);
         return newTile;
     }
 
